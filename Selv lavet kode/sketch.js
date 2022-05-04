@@ -1,24 +1,26 @@
-//idag skal jeg arbejde med følgende:
-//fikse bug med dropdown menu når man redigere
-//vise data for den nuværende bruger når man trykker rediger
-//få uploadet data til local storage
-//få tilføjet rugbrød spist ved middags bordet og andre informatioiner
+//idag skal jeg arbejde med foelgende:
+//fikse bug med dropdown menu når man redigere. Skal bruge hjælp
+//vise data for den nuværende bruger når man trykker rediger. done
+//få uploadet data til local storage. done
+//få tilfoejet rugbroed spist ved middags bordet og andre informatioiner. done
 
-let rugbrødspist = 5;
+let rugbroedspist = 5;
 let navnOgColaPlacering = 415;
 let colaYPlacering = 80;
 let redigermode = false;
 let opretmode = false;
 let sletmode = false;
 let aktivemode = '';
+let gem = []
 
 
 
 //class medarbejder definerer hvad en medarbejder er i dette program og tegner selve profillen for medarbejderen
 class medarbejder {
-  constructor(navn, colaforbrug) {
+  constructor(navn, colaforbrug, rugbroedforbrug) {
     this.navn = navn;
     this.cola = colaforbrug;
+    this.rugbroed = rugbroedforbrug;
 
 
   }
@@ -27,27 +29,26 @@ class medarbejder {
   profile() {
     textSize(24)
     text(str('Navn: ' + this.navn), 50, 50)
-    text(this.navn + ' drikker ca ' + this.cola + ' colaer om dagen', 50, 100)
+    text(this.navn + ' drikker ca ' + this.cola + ' colaer om dagen', 50, 100);
+    text(this.navn + ' spiser ca ' + this.rugbroed + ' skiver rugbroed om dagen', 50, 120);
 
   }
 
 
 }
 
-//medarbejdere er en array der har alle vores medarbejderes data og også der de ny tilføjede medarbedjere bliver skubbet ind af funktionen tilføjmedlem
+//medarbejdere er en array der har alle vores medarbejderes data og også der de ny tilfoejede medarbedjere bliver skubbet ind af funktionen tilfoejmedlem
 let medarbejdere = [
-  //Her kan vi tilføje flere medarbejdere
-  // formatet til at tilføje er som følger: new medarbejder('Navn', antal colaer drukket på en dag);
+  //Her kan vi tilfoeje flere medarbejdere
+  // formatet til at tilfoeje er som foelger: new medarbejder('Navn', antal colaer drukket på en dag,antal rugbroed spist på en dag);
 ];
 
 
-//setup kører en masse ting iggenem for at give os en base at starte på når vi starter programmet
+//setup koerer en masse ting iggenem for at give os en base at starte på når vi starter programmet
 function setup() {
-  console.log('data hentet')
-  if (windowWidth <= 1000) {
-    navnOgColaPlacering = 50
-  } else { navnOgColaPlacering = width / 2 + 40 }
-
+  if (localStorage.length > 1) {
+    pushmedarbejdere();
+  }
   createCanvas(windowWidth - 10, windowHeight - 10);
   background(205)
   //herunder har jeg lavet mine dropdown menuer
@@ -64,7 +65,7 @@ function setup() {
   colaoutput = createInput();
   colaoutput.position(colaslider.x + colaslider.width + 10, colaslider.y,)
   colaoutput.style('width', '20px');
-  //herunder har jeg lavet opret knappen der kan ¨få oprettet din bruger og tilføjet til systemet.
+  //herunder har jeg lavet opret knappen der kan ¨få oprettet din bruger og tilfoejet til systemet.
   bekræft = createButton('bekræft');
   bekræft.position(width / 2 + 270, 80);
 
@@ -78,12 +79,12 @@ function setup() {
   slet = createButton('slet');
   slet.position(opret.x + opret.width + 2, opret.y)
 
-  rugbrødslider = createSlider(0, 10, 5);
-  rugbrødslider.position(colaslider.x, colaslider.y + 30);
-  rugbrødslider.style('width', '80px');
-  rugbrødsoutput = createInput()
-  rugbrødsoutput.position(rugbrødslider.x + rugbrødslider.width + 10, rugbrødslider.y)
-  rugbrødsoutput.style('width', '20px');
+  rugbroedslider = createSlider(0, 10, 5);
+  rugbroedslider.position(colaslider.x, colaslider.y + 30);
+  rugbroedslider.style('width', '80px');
+  rugbroedsoutput = createInput()
+  rugbroedsoutput.position(rugbroedslider.x + rugbroedslider.width + 10, rugbroedslider.y)
+  rugbroedsoutput.style('width', '20px');
 
   gemknap = createButton('Gem')
   gemknap.position(slet.x + slet.width + 2, slet.y)
@@ -94,32 +95,35 @@ function setup() {
   visplatform();
   if (windowWidth <= 900) {
     navnOgColaPlacering = 50
-    input.position(110, 270)
+    input.position(130, 270)
     bekræft.position(260, 300)
-    colaslider.position(110, 300);
+    colaslider.position(input.x, 300);
     colaYPlacering = 300;
     rediger.position(input.x, input.y - rediger.height - 1)
     opret.position(rediger.x + rediger.width + 2, rediger.y)
     slet.position(opret.x + opret.width + 2, opret.y)
-    rugbrødslider.position(colaslider.x, colaslider.y + 30);
-    rugbrødsoutput.position(rugbrødslider.x + rugbrødslider.width + 10, rugbrødslider.y)
+    rugbroedslider.position(colaslider.x, colaslider.y + 30);
+    rugbroedsoutput.position(rugbroedslider.x + rugbroedslider.width + 10, rugbroedslider.y)
     colaoutput.position(colaslider.x + colaslider.width + 10, colaslider.y,)
     gemknap.position(slet.x + slet.width + 2, slet.y)
   } else {
     navnOgColaPlacering = width / 2 + 40;
-    input.position(width / 2 + 100, 50)
+    input.position(width / 2 + 130, 50)
     bekræft.position(width / 2 + 270, 80)
-    colaslider.position(width / 2 + 100, 80);
+    colaslider.position(input.x, 80);
     colaYPlacering = 80;
-    rugbrødslider.position(colaslider.x, colaslider.y + 30);
-    rugbrødsoutput.position(rugbrødslider.x + rugbrødslider.width + 10, rugbrødslider.y)
+    rediger.position(input.x, input.y - rediger.height - 1)
+    opret.position(rediger.x + rediger.width + 2, rediger.y)
+    slet.position(opret.x + opret.width + 2, opret.y)
+    rugbroedslider.position(colaslider.x, colaslider.y + 30);
+    rugbroedsoutput.position(rugbroedslider.x + rugbroedslider.width + 10, rugbroedslider.y)
     colaoutput.position(colaslider.x + colaslider.width + 10, colaslider.y,)
     gemknap.position(slet.x + slet.width + 2, slet.y)
   }
 
 }
 
-//visplatform kører alle medlemer iggenem og tjekker hvilken en der skal vises
+//visplatform koerer alle medlemer iggenem og tjekker hvilken en der skal vises
 function visplatform() {
   for (let i = 0; i < medarbejdere.length; i++) {
     if (medarbejdere[i].navn === dropdown.value()) {
@@ -127,7 +131,6 @@ function visplatform() {
       visprofil(i);
     }
   }
-  gemlokalt()
   console.log('visplatform');
 }
 
@@ -137,40 +140,38 @@ function visprofil(person) {
 }
 
 
-//draw krer all commands iggenem en gang per frame, lige nu tegner den teksten og laver rektangler ovre i vores tilføjelses område
+//draw krer all commands iggenem en gang per frame, lige nu tegner den teksten og laver rektangler ovre i vores tilfoejelses område
 function draw() {
   let colaval = colaslider.value();
-  let rugbrødval = rugbrødslider.value();
+  let rugbroedval = rugbroedslider.value();
   textSize(24)
   strokeWeight(0)
-  text('navn:\ncola:\nrugbrød:', navnOgColaPlacering - 30, colaYPlacering - 12)
+  text('navn:\ncola:\nrugbroed:', navnOgColaPlacering - 30, colaYPlacering - 12)
   // visplatform();
   strokeWeight(1);
   text(str(aktivemode), rediger.x - 100, rediger.y - rediger.height / 2);
-  bekræft.mousePressed(tilføjmedlem);
+  bekræft.mousePressed(tilfoejmedlem);
   opret.mousePressed(startopretmode);
   slet.mousePressed(startsletmode);
   rediger.mousePressed(startredigeringsmode);
-  rugbrødsoutput.value(str(rugbrødval))
+  rugbroedsoutput.value(str(rugbroedval))
   colaoutput.value(str(colaval))
   gemknap.mousePressed(gemlokalt)
 }
 
-//tilføjmedlem skubber det nye medlem med ind i vores kode så vi kan tilføje medlemmer
-function tilføjmedlem() {
+//tilfoejmedlem skubber det nye medlem med ind i vores kode så vi kan tilfoeje medlemmer
+function tilfoejmedlem() {
   let colaerdrukket = colaslider.value();
   let navnindtastet = input.value();
+  let rugbroedspist = rugbroedslider.value();
   if (opretmode) {
-    console.log('medlem tilføjet')
-    medarbejdere.push(new medarbejder(str(navnindtastet), colaerdrukket))
+    console.log('medlem tilfoejet')
+    medarbejdere.push(new medarbejder(str(navnindtastet), colaerdrukket, rugbroedspist))
     vismedarbejderliste();
     dropdown.value(navnindtastet)
     visplatform();
-    opretmode = false;
+    gemlokalt()
     input.value('')
-    let col = color(255);
-    opret.style('background-color', col, 'stroke', noStroke);
-
   }
   if (redigermode) {
     for (let i = 0; i < medarbejdere.length; i++) {
@@ -178,17 +179,16 @@ function tilføjmedlem() {
         console.log('medlem redigeret')
         medarbejdere[i].navn = navnindtastet
         medarbejdere[i].cola = colaerdrukket
+        medarbejdere[i].rugbroed=rugbroedspist
         dropdown.remove()
-        dropdown.selected(i);
         dropdown = createSelect();
-        dropdown.selected(i);
         dropdown.position(0, 0);
         dropdown.changed(visplatform);
-        background(205);
         vismedarbejderliste();
-        visplatform();
         background(205);
-        visprofil(i);
+        gemlokalt()
+        dropdown.value(navnindtastet);
+        visplatform();
       }
     }
   }
@@ -202,13 +202,15 @@ function tilføjmedlem() {
         dropdown.changed(visplatform)
         vismedarbejderliste();
         console.log('bruger slettet')
+        background(205);
         visplatform();
+        gemlokalt()
       }
     }
   }
 }
 
-//vismedarbejderliste kører all vores medarbejdere iggenem og tilføjer dem til vores dropdown menu så vi kan vælge deres profiler
+//vismedarbejderliste koerer all vores medarbejdere iggenem og tilfoejer dem til vores dropdown menu så vi kan vælge deres profiler
 function vismedarbejderliste() {
   for (let i = 0; i < medarbejdere.length; i++) {
     dropdown.option(medarbejdere[i].navn)
@@ -222,28 +224,28 @@ function windowResized() {
   visplatform();
   if (windowWidth <= 900) {
     navnOgColaPlacering = 50
-    input.position(110, 270)
+    input.position(130, 270)
     bekræft.position(260, 300)
-    colaslider.position(110, 300);
+    colaslider.position(input.x, 300);
     colaYPlacering = 300;
     rediger.position(input.x, input.y - rediger.height - 1)
     opret.position(rediger.x + rediger.width + 2, rediger.y)
     slet.position(opret.x + opret.width + 2, opret.y)
-    rugbrødslider.position(colaslider.x, colaslider.y + 30);
-    rugbrødsoutput.position(rugbrødslider.x + rugbrødslider.width + 10, rugbrødslider.y)
+    rugbroedslider.position(colaslider.x, colaslider.y + 30);
+    rugbroedsoutput.position(rugbroedslider.x + rugbroedslider.width + 10, rugbroedslider.y)
     colaoutput.position(colaslider.x + colaslider.width + 10, colaslider.y,)
     gemknap.position(slet.x + slet.width + 2, slet.y)
   } else {
     navnOgColaPlacering = width / 2 + 40;
-    input.position(width / 2 + 100, 50)
+    input.position(width / 2 + 130, 50)
     bekræft.position(width / 2 + 270, 80)
-    colaslider.position(width / 2 + 100, 80);
+    colaslider.position(input.x, 80);
     colaYPlacering = 80;
     rediger.position(input.x, input.y - rediger.height - 1)
     opret.position(rediger.x + rediger.width + 2, rediger.y)
     slet.position(opret.x + opret.width + 2, opret.y)
-    rugbrødslider.position(colaslider.x, colaslider.y + 30);
-    rugbrødsoutput.position(rugbrødslider.x + rugbrødslider.width + 10, rugbrødslider.y)
+    rugbroedslider.position(colaslider.x, colaslider.y + 30);
+    rugbroedsoutput.position(rugbroedslider.x + rugbroedslider.width + 10, rugbroedslider.y)
     colaoutput.position(colaslider.x + colaslider.width + 10, colaslider.y,)
     gemknap.position(slet.x + slet.width + 2, slet.y)
   }
@@ -281,6 +283,7 @@ function startredigeringsmode() {
     if (medarbejdere[i].navn === dropdown.value()) {
       input.value(medarbejdere[i].navn)
       colaslider.value(medarbejdere[i].cola)
+      rugbroedslider.value(medarbejdere.rugbroed)
     }
   }
   background(205)
@@ -290,13 +293,18 @@ function startredigeringsmode() {
 
 
 function gemlokalt() {
- 
-    localStorage.setItem('Medarbejder', JSON.stringify( medarbejdere));
-  
+
+  localStorage.setItem('medarbejdere', JSON.stringify(medarbejdere));
+
   console.log('medarbejdere er gemt lokalt')
 }
 
-
+function pushmedarbejdere() {
+  gem = JSON.parse(localStorage.getItem('medarbejdere'));
+  for (i = 0; i < gem.length; i++) {
+    medarbejdere.push(new medarbejder(str(gem[i].navn), gem[i].cola, gem[i].rugbroed))
+  }
+}
 // function hentlokaldata() {
 //   const hentdata = localStorage.getItem('Medarbejder Database');
 //   console.log('data hentet')

@@ -168,7 +168,7 @@ function tilfoejmedlem() {
     console.log('medlem tilfoejet')
     medarbejdere.push(new medarbejder(str(navnindtastet), colaerdrukket, rugbroedspist))
     vismedarbejderliste();
-    dropdown.value(navnindtastet)
+    dropdown.changed(visplatform);
     visplatform();
     gemlokalt()
     input.value('')
@@ -186,8 +186,9 @@ function tilfoejmedlem() {
         dropdown.changed(visplatform);
         vismedarbejderliste();
         background(205);
-        gemlokalt()
         dropdown.value(navnindtastet);
+        gemlokalt()
+        // dropdown.value(navnindtastet);
         visplatform();
       }
     }
@@ -203,6 +204,7 @@ function tilfoejmedlem() {
         vismedarbejderliste();
         console.log('bruger slettet')
         background(205);
+        
         visplatform();
         gemlokalt()
       }

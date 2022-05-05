@@ -1,8 +1,8 @@
 //idag skal jeg arbejde med foelgende:
-//fikse bug med dropdown menu når man redigere. Skal bruge hjælp
-//vise data for den nuværende bruger når man trykker rediger. done
-//få uploadet data til local storage. done
-//få tilfoejet rugbroed spist ved middags bordet og andre informatioiner. done
+//Jeg skal have hjemme siden op på nettet. Done
+//Jeg skal fikse bug med at man ikke kan have flere brugere med same navn. Done
+//jeg skal have rugbroed integreret i min redigerings menu så den bliver skiftet til den rigtige værdi nå man vælger en bruger at redigere. done
+//Jeg skal skjule elementer når de ike skal bruger for at gøre det mere brugervenligt. Done
 
 let rugbroedspist = 5;
 let navnOgColaPlacering = 415;
@@ -12,6 +12,7 @@ let opretmode = false;
 let sletmode = false;
 let aktivemode = '';
 let gem = []
+let data = 0;
 
 
 
@@ -67,7 +68,7 @@ function setup() {
   colaoutput.style('width', '20px');
   //herunder har jeg lavet opret knappen der kan ¨få oprettet din bruger og tilfoejet til systemet.
   bekræft = createButton('bekræft');
-  bekræft.position(width / 2 + 270, 80);
+  bekræft.position(input.x + input.width + 2, input.y)
 
   //herunder har jeg lavet vores rediger knap den kan give dig adgang til at rette på oplysninger om den valgte bruger.
   rediger = createButton('rediger');
@@ -79,24 +80,26 @@ function setup() {
   slet = createButton('slet');
   slet.position(opret.x + opret.width + 2, opret.y)
 
-  rugbroedslider = createSlider(0, 10, 5);
+  rugbroedslider = createSlider(0, 10, 20);
   rugbroedslider.position(colaslider.x, colaslider.y + 30);
   rugbroedslider.style('width', '80px');
   rugbroedsoutput = createInput()
   rugbroedsoutput.position(rugbroedslider.x + rugbroedslider.width + 10, rugbroedslider.y)
   rugbroedsoutput.style('width', '20px');
 
-  gemknap = createButton('Gem')
-  gemknap.position(slet.x + slet.width + 2, slet.y)
+  profilbillede = createButton('tag billede');
+  profilbillede.position(rugbroedsoutput.x+50, rugbroedsoutput.y + rugbroedsoutput.height + 10);
+  video = createCapture(VIDEO)
+  video.size(220, 240);
+ 
 
 
-
-  vismedarbejderliste();
+  opretmedarbejderliste();
   visplatform();
   if (windowWidth <= 900) {
     navnOgColaPlacering = 50
     input.position(130, 270)
-    bekræft.position(260, 300)
+    bekræft.position(input.x + input.width + 2, input.y)
     colaslider.position(input.x, 300);
     colaYPlacering = 300;
     rediger.position(input.x, input.y - rediger.height - 1)
@@ -105,11 +108,10 @@ function setup() {
     rugbroedslider.position(colaslider.x, colaslider.y + 30);
     rugbroedsoutput.position(rugbroedslider.x + rugbroedslider.width + 10, rugbroedslider.y)
     colaoutput.position(colaslider.x + colaslider.width + 10, colaslider.y,)
-    gemknap.position(slet.x + slet.width + 2, slet.y)
   } else {
     navnOgColaPlacering = width / 2 + 40;
     input.position(width / 2 + 130, 50)
-    bekræft.position(width / 2 + 270, 80)
+    bekræft.position(input.x + input.width + 2, input.y)
     colaslider.position(input.x, 80);
     colaYPlacering = 80;
     rediger.position(input.x, input.y - rediger.height - 1)
@@ -118,13 +120,13 @@ function setup() {
     rugbroedslider.position(colaslider.x, colaslider.y + 30);
     rugbroedsoutput.position(rugbroedslider.x + rugbroedslider.width + 10, rugbroedslider.y)
     colaoutput.position(colaslider.x + colaslider.width + 10, colaslider.y,)
-    gemknap.position(slet.x + slet.width + 2, slet.y)
   }
 
 }
 
 //visplatform koerer alle medlemer iggenem og tjekker hvilken en der skal vises
 function visplatform() {
+  console.log(dropdown.value())
   for (let i = 0; i < medarbejdere.length; i++) {
     if (medarbejdere[i].navn === dropdown.value()) {
       background(205);
@@ -140,23 +142,67 @@ function visprofil(person) {
 }
 
 
-//draw krer all commands iggenem en gang per frame, lige nu tegner den teksten og laver rektangler ovre i vores tilfoejelses område
+//draw koerer all commands iggenem en gang per frame, lige nu tegner den teksten og laver rektangler ovre i vores tilfoejelses område
 function draw() {
   let colaval = colaslider.value();
   let rugbroedval = rugbroedslider.value();
-  textSize(24)
-  strokeWeight(0)
-  text('navn:\ncola:\nrugbroed:', navnOgColaPlacering - 30, colaYPlacering - 12)
-  // visplatform();
-  strokeWeight(1);
-  text(str(aktivemode), rediger.x - 100, rediger.y - rediger.height / 2);
+image( video,navnOgColaPlacering-29,profilbillede.y)
+  // if (sletmode || opretmode || redigermode) {
+  //   textSize(24)
+  //   strokeWeight(0)
+  //   text('navn:\ncola:\nrugbroed:', navnOgColaPlacering - 30, colaYPlacering - 12)
+  //   // visplatform();
+  //   strokeWeight(1);
+  // }
+  if (aktivemode == '') {
+    rugbroedslider.hide()
+    rugbroedsoutput.hide()
+    input.hide();
+    colaslider.hide();
+    colaoutput.hide();
+    bekræft.hide();
+    rediger.show();
+    opret.show();
+    slet.show();
+  } else {
+
+    text(str(aktivemode), navnOgColaPlacering - 30, rediger.y);
+    textSize(24)
+    strokeWeight(0)
+    text('navn:\ncola:\nrugbroed:', navnOgColaPlacering - 30, colaYPlacering - 12)
+    rugbroedslider.show()
+    rugbroedsoutput.show()
+    input.show();
+    colaslider.show();
+    colaoutput.show();
+    bekræft.show()
+    rediger.hide();
+    opret.hide();
+    slet.hide();
+  }
+  if (aktivemode == 'Du kan nu slette det valgte medlem ved at trykke bekræft') {
+    background(205);
+    visplatform();
+    text(str(aktivemode), navnOgColaPlacering - 30, rediger.y);
+    textSize(24)
+    rugbroedslider.hide()
+    rugbroedsoutput.hide()
+    input.hide();
+    colaslider.hide();
+    colaoutput.hide();
+    bekræft.show()
+    rediger.hide();
+    opret.hide();
+    slet.hide();
+  }
   bekræft.mousePressed(tilfoejmedlem);
   opret.mousePressed(startopretmode);
   slet.mousePressed(startsletmode);
   rediger.mousePressed(startredigeringsmode);
   rugbroedsoutput.value(str(rugbroedval))
   colaoutput.value(str(colaval))
-  gemknap.mousePressed(gemlokalt)
+  dropdown.changed(visplatform);
+  profilbillede.mousePressed(tagbillede)
 }
 
 //tilfoejmedlem skubber det nye medlem med ind i vores kode så vi kan tilfoeje medlemmer
@@ -165,30 +211,41 @@ function tilfoejmedlem() {
   let navnindtastet = input.value();
   let rugbroedspist = rugbroedslider.value();
   if (opretmode) {
-    console.log('medlem tilfoejet')
-    medarbejdere.push(new medarbejder(str(navnindtastet), colaerdrukket, rugbroedspist))
-    vismedarbejderliste();
-    dropdown.changed(visplatform);
-    visplatform();
-    gemlokalt()
-    input.value('')
+    for (i = 0; i < medarbejdere.length; i++) {
+      if (medarbejdere[i].navn == navnindtastet) {
+        opretmode = false;
+        alert(str(navnindtastet) + ' er allerede oprettet brug venligst efternavn eller andet for at specificere');
+        background(205);
+        visplatform();
+      }
+
+    }
+    if (opretmode) {
+      console.log('medlem tilfoejet')
+      medarbejdere.push(new medarbejder(str(navnindtastet), colaerdrukket, rugbroedspist))
+      opretmedarbejderliste();
+      background(205);
+      visplatform();
+      gemlokalt()
+      input.value('')
+    }
   }
+
   if (redigermode) {
     for (let i = 0; i < medarbejdere.length; i++) {
       if (medarbejdere[i].navn === dropdown.value()) {
         console.log('medlem redigeret')
         medarbejdere[i].navn = navnindtastet
         medarbejdere[i].cola = colaerdrukket
-        medarbejdere[i].rugbroed=rugbroedspist
+        medarbejdere[i].rugbroed = rugbroedspist
         dropdown.remove()
         dropdown = createSelect();
         dropdown.position(0, 0);
         dropdown.changed(visplatform);
-        vismedarbejderliste();
+        opretmedarbejderliste();
         background(205);
-        dropdown.value(navnindtastet);
         gemlokalt()
-        // dropdown.value(navnindtastet);
+        dropdown.value(navnindtastet);
         visplatform();
       }
     }
@@ -201,21 +258,25 @@ function tilfoejmedlem() {
         dropdown = createSelect();
         dropdown.position(0, 0)
         dropdown.changed(visplatform)
-        vismedarbejderliste();
+        opretmedarbejderliste();
         console.log('bruger slettet')
         background(205);
-        
+
         visplatform();
         gemlokalt()
       }
     }
   }
+  aktivemode = '';
+  sletmode = false;
+  opretmode = false;
+  redigermode = false;
 }
 
-//vismedarbejderliste koerer all vores medarbejdere iggenem og tilfoejer dem til vores dropdown menu så vi kan vælge deres profiler
-function vismedarbejderliste() {
+//opretmedarbejderliste koerer all vores medarbejdere iggenem og tilfoejer dem til vores dropdown menu så vi kan vælge deres profiler
+function opretmedarbejderliste() {
   for (let i = 0; i < medarbejdere.length; i++) {
-    dropdown.option(medarbejdere[i].navn)
+    dropdown.option(medarbejdere[i].navn, medarbejdere[i].navn)
   }
 }
 
@@ -227,7 +288,7 @@ function windowResized() {
   if (windowWidth <= 900) {
     navnOgColaPlacering = 50
     input.position(130, 270)
-    bekræft.position(260, 300)
+    bekræft.position(input.x + input.width + 2, input.y)
     colaslider.position(input.x, 300);
     colaYPlacering = 300;
     rediger.position(input.x, input.y - rediger.height - 1)
@@ -236,11 +297,10 @@ function windowResized() {
     rugbroedslider.position(colaslider.x, colaslider.y + 30);
     rugbroedsoutput.position(rugbroedslider.x + rugbroedslider.width + 10, rugbroedslider.y)
     colaoutput.position(colaslider.x + colaslider.width + 10, colaslider.y,)
-    gemknap.position(slet.x + slet.width + 2, slet.y)
   } else {
     navnOgColaPlacering = width / 2 + 40;
     input.position(width / 2 + 130, 50)
-    bekræft.position(width / 2 + 270, 80)
+    bekræft.position(input.x + input.width + 2, input.y)
     colaslider.position(input.x, 80);
     colaYPlacering = 80;
     rediger.position(input.x, input.y - rediger.height - 1)
@@ -249,7 +309,6 @@ function windowResized() {
     rugbroedslider.position(colaslider.x, colaslider.y + 30);
     rugbroedsoutput.position(rugbroedslider.x + rugbroedslider.width + 10, rugbroedslider.y)
     colaoutput.position(colaslider.x + colaslider.width + 10, colaslider.y,)
-    gemknap.position(slet.x + slet.width + 2, slet.y)
   }
 }
 
@@ -261,8 +320,9 @@ function startopretmode() {
   console.log('opret mode er true')
   redigermode = false;
   background(205)
-  aktivemode = 'Du kan nu oprette medlemmer'
+  aktivemode = 'Du kan nu oprette et medlemm'
   visplatform();
+
 }
 
 
@@ -285,11 +345,11 @@ function startredigeringsmode() {
     if (medarbejdere[i].navn === dropdown.value()) {
       input.value(medarbejdere[i].navn)
       colaslider.value(medarbejdere[i].cola)
-      rugbroedslider.value(medarbejdere.rugbroed)
+      rugbroedslider.value(medarbejdere[i].rugbroed)
     }
   }
   background(205)
-  aktivemode = 'Du kan nu redigere medlemmer'
+  aktivemode = 'Du kan nu redigere et medlemm'
   visplatform();
 }
 
@@ -307,15 +367,9 @@ function pushmedarbejdere() {
     medarbejdere.push(new medarbejder(str(gem[i].navn), gem[i].cola, gem[i].rugbroed))
   }
 }
-// function hentlokaldata() {
-//   const hentdata = localStorage.getItem('Medarbejder Database');
-//   console.log('data hentet')
-// }
 
-
-// function opretkategori(kategorinavn){
-//ll
-
-// }
-
-
+function tagbillede() {
+  image(video, 0, 0);
+  //draw the image being captured on webcam onto the canvas at the position (0, 0) of the canvas
+  console.log('billede taget')
+}
